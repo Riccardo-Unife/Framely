@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="it">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="application for structural analysis">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Framely web app</title>
+		
+		<link rel="stylesheet" href="style.css">
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+					"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+				}
+			}
+		</script>
+
+		<!-- LOGO SCHEDA WEB -->
+		<link rel="icon" href="/logo.svg?v=1" type="image/svg+xml">
+	</head>
+	<body>
+		<!-- LOGO -->
+		<img src="/logo_light.svg" alt="Logo" class="logo">
+		
+		<!-- Gestione file -->
+		<div id="fileBar">
+			<button id="resetALL" title="Reset"></button>
+			<input id="nomeFile" placeholder="Modello senza nome">
+			<div class="file-actions">
+				<button id="saveModel" title="Salva"></button>
+				<button id="loadModelBtn" title="Apri"></button>
+				<input type="file" id="loadModel" accept=".stc">
+			</div>
+		</div>
+
+		<!-- BOTTONI FUNZIONI -->
+		<div id="smart">			
+			<!-- Bottone home -->
+			<button id="resetCamera"></button>
+
+			<!-- Pulsanti Undo/Redo -->
+			<button id="undoBtn"></button>
+			<button id="redoBtn"></button>
+
+			<!-- Pulsante canc -->
+			<button id="deleteBtn"></button>
+
+			<!-- Schermo intero -->
+			 <button id="fullscreenBtn"></button>
+
+			<!-- Elenco elementi -->
+			<button id="listBtn"></button>
+		</div>
+		<div id="selectionToolbar">
+			<!-- Select/Deselect -->
+			<button id="selectBtn"></button>
+			<button id="deselectBtn"></button>
+			<button id="togglePoints" class="filter-btn active" title="Punti"></button>
+			<button id="toggleLines" class="filter-btn active" title="Linee"></button>
+			<button id="toggleFloors" class="filter-btn active" title="Solai"></button>
+			<button id="toggleAmds" class="filter-btn active" title="AMD"></button>
+		</div>
+
+		<div id="unit">
+			<p>v 0.0.0 <br> [m kN t s deg]</p>
+		</div>
+
+		<div id="cookie-banner">
+			<span id="cookie-info-btn">Informativa cookie</span>
+		</div>
+		<div id="cookie-overlay"></div>
+		<div id="cookie-popup">
+			<p>
+				Questo sito utilizza esclusivamente cookie tecnici di sessione, necessari
+				al corretto funzionamento dell’applicazione. Non vengono utilizzati cookie
+				di profilazione o di terze parti.
+			</p>
+		</div>
+
+		<!-- ANALISI -->
+		<button id="analisiBtn">Analisi</button>
+
+		<!-- CARICAMENTO -->
+		<div id="loadingOverlay">
+			<div class="loadingContent">
+				<p id="loadingMsg">Invio dati al server...</p>
+				<!-- <img src="telaio_animato.gif" alt="Telaio in oscillazione" width="200" /> -->
+				<div class="spinner"></div>
+			</div>
+		</div>
+
+		<!-- RIBBON -->
+		<div id="ribbon">
+			<button class="tab active" data-target="tab-punti">Nodi</button>
+			<button class="tab" data-target="tab-linee">Telai</button>
+			<button class="tab" data-target="tab-solai">Solai</button>
+			<button class="tab" data-target="tab-carichi">Carichi</button>
+			<button class="tab" data-target="tab-amd">AMD</button>
+
+			<div class="panels">
+				<!-- PUNTI -->
+				<div class="panel active" id="tab-punti">
+					<!-- Input punti -->
+					<div id="point-form">
+						<div class="inputs">
+							<label>x: <input type="number" id="x-input" placeholder="0.00 m"></label>
+							<label>y: <input type="number" id="y-input"  placeholder="0.00 m"></label>
+							<label>z: <input type="number" id="z-input"  placeholder="0.00 m"></label>
+						</div>
+						<button id="add-point">Aggiungi</button>
+					</div>
+					<!-- Vincoli -->
+					<div id="fixed-form">
+						<button id="setFixedBtn">Vincola</button>
+						<button id="unsetFixedBtn">Svincola</button>
+					</div>
+				</div>
+
+				<!-- LINEE -->
+				<div class="panel" id="tab-linee">
+					<!-- Menu materiale -->
+					<div class="menu-container">
+						<span>Materiale</span>
+						<button class="dropdown-btn">C25/30</button>
+						<div class="dropdown-list" id="dropdownMat">
+							<div>C25/30</div>
+							<div>S355</div>
+							<div>B450C</div>
+							<div class="new-btn">Nuovo</div>
+						</div>
+					</div>
+					<!-- Menu sezione -->
+					<div class="menu-container" data-type="sezione">
+						<span>Sezione</span>
+						<button class="dropdown-btn">PIL_30x30</button>
+						<div class="dropdown-list" id="dropdownSez">
+							<div>PIL_30x30</div>
+							<div>TRAV_50x30</div>
+							<div class="new-btn">Nuovo</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- SOLAI -->
+				<div class="panel" id="tab-solai">
+					<!-- Modalità piano -->
+					<div id="mode">
+						<button id="createFloorBtn">Crea Solaio</button>
+					</div>
+				</div>
+				
+				<!-- CARICHI -->
+				<div class="panel" id="tab-carichi">
+					<div id="load-form">
+						<div class="inputs">
+							<label>Fx: <input type="number" id="Fx-input" placeholder="0.00 kN o kN/m"></label>
+							<label>Fy: <input type="number" id="Fy-input" placeholder="0.00 kN o kN/m"></label>
+							<label>Fz: <input type="number" id="Fz-input" placeholder="0.00 kN o kN/m"></label>
+						</div>
+						<div class="inputs">
+							<label>Mx: <input type="number" id="Mx-input" placeholder="0.00 kNm o kNm/m"></label>
+							<label>My: <input type="number" id="My-input" placeholder="0.00 kNm o kNm/m"></label>
+							<label>Mz: <input type="number" id="Mz-input" placeholder="0.00 kNm o kNm/m"></label>
+						</div>
+						<div class="inputs">
+							<label>Massa: <input type="number" id="Mass-input" placeholder="0.00 t o t/m"></label>
+							<div class="LoadButton">
+								<button id="delete-load">Elimina</button>
+								<button id="apply-load">Aggiungi</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- AMD -->
+				<div class="panel" id="tab-amd">
+					<!-- Input AMD -->
+					<div id="amd-form">
+						<div class="inputs">
+							<label>x: <input type="number" id="x-input_amd" placeholder="0.00 m"></label>
+							<label>y: <input type="number" id="y-input_amd" placeholder="0.00 m"></label>
+							<label>z: <input type="number" id="z-input_amd" placeholder="0.00 m"></label>
+						</div>
+						<div class="inputs">
+							<label>G: <input type="number" id="G-input_amd" placeholder="10 t/s"></label>
+							<label>φ: <input type="number" id="φ-input_amd" placeholder="0.00 °"></label>
+							<button id="add-amd">Aggiungi</button>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+		<!-- Elenco punti e linee -->
+		<div id="list-panel">
+			<!-- Punti -->
+			<div class="panel-header">
+				<h4>Elenco punti</h4>
+				<button id="exportCSV-point" title="Export punti"></button>
+			</div>
+			<ul id="points-list"></ul>
+
+			<!-- Linee -->
+			<div class="panel-header">
+				<h4>Elenco telai</h4>
+				<button id="exportCSV-line" title="Export linee"></button>
+			</div>
+			<ul id="lines-list"></ul>
+
+			<!-- Piani -->
+			<div class="panel-header">
+				<h4>Elenco solai</h4>
+				<button id="exportCSV-floor" title="Export solai"></button>
+			</div>
+			<ul id="floors-list"></ul>
+
+			<!-- AMD -->
+			<div class="panel-header">
+				<h4>Elenco AMD</h4>
+				<button id="exportCSV-amd" title="Export amd"></button>
+			</div>
+			<ul id="amd-list"></ul>
+		</div>
+
+		<!-- MODAL NUOVA SEZIONE -->
+		<div id="sectionModal" class="modal hidden">
+			<div class="modal-overlay"></div>
+			<div class="modal-content">
+				<div class="SecTitle">
+					<h3>Nuova sezione</h3>
+					<button id="secLibraryBtn"></button>
+				</div>
+
+				<label class="field">
+					<span>Nome</span>
+					<input id="secNome" type="text" placeholder="PIL_30x30">
+				</label>
+
+				<div class="row">
+					<label class="field">
+						<span>H [m]</span>
+						<input id="secH" type="number" placeholder="0.30">
+					</label>
+
+					<label class="field">
+						<span>B [m]</span>
+						<input id="secB" type="number" placeholder="0.30">
+					</label>
+				</div>
+
+				<div class="preview" id="secPreview"></div>
+
+				<div class="buttonsSez">
+					<button id="secCancel">Annulla</button>
+					<button id="secSave">Salva</button>
+				</div>
+			</div>
+		</div>
+		<!-- MODAL NUOVO MATERIALE -->
+		<div id="materialModal" class="modal hidden">
+			<div class="modal-content">
+				<div class="MatTitle">
+					<h3>Nuovo materiale</h3>
+					<button id="matLibraryBtn"></button>
+				</div>
+				
+				<label class="field">
+					<span>Nome</span>
+					<input id="matNome" type="text" placeholder="C25/30">
+				</label>
+
+				<div class="row">
+					<label class="field">
+						<span>ρ [t/m3]</span>
+						<input id="matRho" type="number" placeholder="2.5">
+					</label>
+
+					<label class="field">
+						<span>E [kN/m2]</span>
+						<input id="matE" type="number" placeholder="31447161">
+					</label>
+
+					<label class="field">
+						<span>G [kN/m2]</span>
+						<input id="matG" type="number" placeholder="13102984">
+					</label>
+				</div>
+
+				<div class="buttonsMat">
+					<button id="matCancel">Annulla</button>
+					<button id="matSave">Salva</button>
+				</div>
+			</div>
+			<div class="modal-overlay"></div>
+		</div>
+		<!-- MODAL ARCHIVIO SEZIONI -->
+		<div id="sectionLibraryModal" class="modal hidden">
+			<div class="modal-content large">
+
+				<h3>Archivio Sezioni</h3>
+
+				<!-- Tabs -->
+				<div class="tabs" id="sectionTabs"></div>
+
+				<!-- Lista sezioni -->
+				<div class="library-list" id="sectionLibraryList"></div>
+
+				<button id="secLibraryClose">Chiudi</button>
+			</div>
+		</div>
+		<!-- MODAL ARCHIVIO MATERIALI -->
+		<div id="materialLibraryModal" class="modal hidden">
+			<div class="modal-content large">
+
+				<h3>Archivio Materiali</h3>
+
+				<!-- Tabs -->
+				<div class="tabs" id="materialTabs"></div>
+
+				<!-- Lista materiali -->
+				<div class="library-list" id="materialLibraryList"></div>
+
+				<button id="matLibraryClose">Chiudi</button>
+			</div>
+		</div>
+
+		<!-- JS principale -->
+		<script type="module" src="script.js"></script>
+		
+		<!-- TAB SWITCHER -->
+		<script>
+			const tabs = document.querySelectorAll(".tab");
+			const panels = document.querySelectorAll(".panel");
+
+			tabs.forEach(t => {
+				t.addEventListener("click", () => {
+					tabs.forEach(x => x.classList.remove("active"));
+					panels.forEach(x => x.classList.remove("active"));
+
+					t.classList.add("active");
+					document.getElementById(t.dataset.target).classList.add("active");
+				});
+			});
+		</script>
+
+	</body>
+</html>
