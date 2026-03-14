@@ -1,7 +1,7 @@
 /* Finestra input */
 /* colori */
 /*
-bottoni: #34A0D5
+bottoni: #4D95FA
 asse x: #A83838
 asse y: #71C140
 asse z: #3C38A8
@@ -14,7 +14,7 @@ punti: #915B9A
 linee: #635A99
 punti selezionati: #CCB2D2 - #6EA465
 linee selezionate: #9F98C3 - #9CA566
-link: https://coolors.co/34a0d5-a83838-71c140-3c38a8-915b9a-5d4761-443647-272933-3b3c46-545564
+link: https://coolors.co/4D95FA-a83838-71c140-3c38a8-915b9a-5d4761-443647-272933-3b3c46-545564
 
 icone: https://icons8.com/icons/all--os-ios--style-ios-glyphs
 
@@ -352,7 +352,7 @@ button:focus {
 	border-radius: 50%;
 }
 input:checked + .slider {
-	background-color: #34A0D5;
+	background-color: #4D95FA;
 }
 input:checked + .slider:before {
 	transform: translateX(20px);
@@ -680,17 +680,17 @@ input:checked + .slider:before {
 }
 #analisiBtn,
 #ModalAnalisiBtn {
-	background: #34A0D5;
+	background: #4D95FA;
 }
 #analisiBtn:hover,
 #ModalAnalisiBtn:hover {
-    box-shadow: 0 0 8px #34A0D5bf;
+    box-shadow: 0 0 8px #4D95FAbf;
     transform: translateY(-2px);
 }
 #analisiBtn:active,
 #ModalAnalisiBtn:active {
     transform: translateY(1px);
-    box-shadow: 0 0 4px #34A0D5bf;
+    box-shadow: 0 0 4px #4D95FAbf;
 }
 #escBtn {
 	background: #C75757;
