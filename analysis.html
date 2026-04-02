@@ -187,25 +187,46 @@
 		</div>
 
 		<!-- OUTPUT ANALISI -->
-		<!-- Selezione confronto -->
-		<div class="AnalisiDropdown" id="AnalisiDropdown">
-			<button class="AnalisiDropdown-btn" id="dropdownBtn">Periodo T</button>
-			<div class="AnalisiDropdown-list" id="dropdownList">
-				<div data-value="T">Periodo T</div>
-				<div data-value="f">Frequenza f</div>
-				<div data-value="ω">Pulsazione ω</div>
-				<div data-value="ω_NC">ω Non classico</div>
-				<div data-value="ζ">Smorzamento ζ</div>
-				<div data-value="ζ_NC">ζ Non classico</div>
-				<div data-value="Δζ">Differenza ζ</div>
-				<div data-value="M_part">Massa</div>
-			</div>
-		</div>
 		<!-- Tabella dei modi -->
-		<div class="AnalisiOutput" id="analisiOutput">
-			<table id="modiTable">
-				<tbody></tbody>
-			</table>
+		<div id="analisiOutput">
+			<div class="menu-container" id="analisiDropdown">
+				<!-- Scala -->
+				<div id="auto-scale">
+					<label class="switch">
+						<input type="checkbox" id="autoScaleSwitch" checked>
+						<span class="slider"></span>
+					</label>
+					<span class="switch-label">Auto scala</span>
+				</div>
+				<div class="inputs">
+					<label>Scala: <input type="number" id="scaleInput" step="0.1" value="1"></label>
+				</div>
+				<!-- Colore -->
+				<div id="color-scale">
+					<label class="switch">
+						<input type="checkbox" id="colorSwitch" checked>
+						<span class="slider"></span>
+					</label>
+					<span class="switch-label">Colore</span>
+				</div>
+				<!-- Selezione confronto -->
+				<button class="dropdown-btn" id="dropdownBtn">Periodo T</button>
+				<div class="dropdown-list" id="dropdownList">
+					<div data-value="T">Periodo T</div>
+					<div data-value="f">Frequenza f</div>
+					<div data-value="ω">Pulsazione ω</div>
+					<div data-value="ω_NC">ω Non classico</div>
+					<div data-value="ζ">Smorzamento ζ</div>
+					<div data-value="ζ_NC">ζ Non classico</div>
+					<div data-value="Δζ">Differenza ζ</div>
+					<div data-value="M_part">Massa</div>
+				</div>
+			</div>
+			<div class="analisiOutputOut">
+				<table id="modiTable">
+					<tbody></tbody>
+				</table>
+			</div>
 		</div>
 
 		<!-- Elenco punti e linee -->
@@ -262,9 +283,6 @@
 		<div id="plotRisultati"></div>
 		<!-- Risultati testuali modali-->
 		<div id="plotRisultatiModali"></div>
-
-		<!-- Plot 3D -->
-		<!-- <div id="plotStruttura"></div> -->
 
 		<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 	</body>

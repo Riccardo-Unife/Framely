@@ -161,6 +161,7 @@ button:focus {
 	gap: 10px;
 }
 #point-form .inputs,
+#analisiDropdown .inputs,
 #line-form .inputs,
 #load-form .inputs,
 #amd-form .inputs,
@@ -186,6 +187,7 @@ button:focus {
 /* input e bottone */
 #point-form input,
 #point-form button,
+#analisiDropdown input,
 #damping-form input,
 #damping-form button,
 #NMode-form input,
@@ -210,6 +212,7 @@ button:focus {
 	color: white;
 }
 #point-form input,
+#analisiDropdown input,
 #damping-form input,
 #NMode-form input,
 #Dsisma-form input,
@@ -257,6 +260,8 @@ button:focus {
 }
 #point-form input[type=number]::-webkit-inner-spin-button,
 #point-form input[type=number]::-webkit-outer-spin-button,
+#analisiDropdown input[type=number]::-webkit-inner-spin-button,
+#analisiDropdown input[type=number]::-webkit-outer-spin-button,
 #damping-form input[type=number]::-webkit-inner-spin-button,
 #damping-form input[type=number]::-webkit-outer-spin-button,
 #NMode-form input[type=number]::-webkit-inner-spin-button,
@@ -279,6 +284,7 @@ button:focus {
 
 /* Rimuove le freccette in Firefox */
 #point-form input[type=number],
+#analisiDropdown input[type=number],
 #damping-form input[type=number],
 #NMode-form input[type=number],
 #Dsisma-form input[type=number],
@@ -399,14 +405,19 @@ input:checked + .slider:before {
 
 /* ----- MATERIALI ----- */
 /* Dropdown */
-.AnalisiDropdown {
-	position: fixed;
-	right: 20px;
-	top: 50px;
-	z-index: 10;
-	display: none;
+#analisiDropdown {
+	align-items: stretch;
+	text-align: left;
+	gap: 5px;
+}
+#auto-scale,
+#color-scale {
+	display: flex;
+	align-items: center;
+	gap: 10px;
 }
 .menu-container {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -421,7 +432,9 @@ input:checked + .slider:before {
 	color: white;
 	text-align: center;
 }
-.AnalisiDropdown-btn,
+.dropdown-btn {
+	width: 100%;
+}
 .dropdown-btn,
 .tabs button {
 	font-family: monospace;
@@ -436,32 +449,23 @@ input:checked + .slider:before {
 	cursor: pointer;
 	height: 30px;
 }
-.AnalisiDropdown-btn {
-	width: 180px;
-	text-align: center;
-}
-.AnalisiDropdown-list,
 .dropdown-list {
 	display: none;
 	position: absolute;
+	top: 100%;
+	width: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 10px;
 	background-color: #545564;
 	border-radius: 20px;
-	padding: 10px;
 	box-shadow: 0px 5px 10px #00000033;
 	font-weight: normal;
 }
-.dropdown-list {
-	top: calc(100% - 10px);
-}
-.AnalisiDropdown-list {
-	top: calc(100% + 10px);
-	left: 50%;
-	transform: translateX(-50%);
-	width: 200px;
-	z-index: 10;
-}
-.dropdown-list div,
-.AnalisiDropdown-list div {
+/* #analisiOutput .dropdown-list {
+	top: 124px;
+} */
+.dropdown-list div {
 	text-align: center;
 	padding: 5px;
 	cursor: pointer;
@@ -471,8 +475,6 @@ input:checked + .slider:before {
 	color: white;
 }
 .dropdown-list div:hover,
-.AnalisiDropdown-btn:hover,
-.AnalisiDropdown-list div:hover,
 .dropdown-btn:hover,
 .tabs button:hover {
 	background-color: white;
@@ -1012,25 +1014,30 @@ input:checked + .slider:before {
 
 /* RISULTATI ANALISI MODALE ----------------------------------------------------------------------*/
 /* Tabella dei modi */
-.AnalisiOutput {
+#analisiOutput {
+	display: none;
 	position: fixed;
-	top: 90px;
+	top: 50px;
 	right: 20px;
-	width: 160px;
-	padding: 10px;
+	width: 170px;
+	max-height:	calc(100vh - 110px);
 	border-radius: 20px;
+	flex-direction: column;
+	gap: 10px;
 	background-color: #3B3C4680;
 	box-shadow: 0 0 10px #00000033;
-	display: none;
-	max-height: 630px;
-	max-height:	calc(100vh - 165px);
+}
+.analisiOutputOut {
+	border-radius: 15px;
+	margin: 5px;
 	overflow-y: auto;
 	overflow-x: hidden;
 }
-#analisiOutput::-webkit-scrollbar {
+
+.analisiOutputOut::-webkit-scrollbar {
 	width: 5px;
 }
-#analisiOutput::-webkit-scrollbar-thumb {
+.analisiOutputOut::-webkit-scrollbar-thumb {
 	background: white;
 	border-radius: 4px;
 }

@@ -109,25 +109,25 @@ const gizmoSize = 100;									// Dimensioni gizmmo
 
 // Animazione
 function animate() {									// Animazione scena
-    requestAnimationFrame(animate);
-    controls.update();
+	requestAnimationFrame(animate);
+	controls.update();
 
-    // Scena principale a tutto schermo
-    renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
-    renderer.render(scene, camera);
+	// Scena principale a tutto schermo
+	renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+	renderer.render(scene, camera);
 
-    // Gizmo in basso a sinistra
-    renderer.autoClear = false;		// Disabilita clear per non cancellare scena principale
-    renderer.clearDepth();			// Pulisce il buffer di profondità
+	// Gizmo in basso a sinistra
+	renderer.autoClear = false;		// Disabilita clear per non cancellare scena principale
+	renderer.clearDepth();			// Pulisce il buffer di profondità
 
-    renderer.setViewport(10, 10, gizmoSize, gizmoSize);	// Area widget (x, y, L, H)
-    
-    // Sincronizzazione
-    gizmoCamera.position.copy(camera.position);
-    gizmoCamera.position.sub(controls.target);			// Orbita su (0,0,0)
-    gizmoCamera.position.setLength(2.5);				// Distanza camera
-    gizmoCamera.lookAt(0, 0, 0);						// Targhet camera
-    renderer.render(gizmoScene, gizmoCamera);
+	renderer.setViewport(10, 10, gizmoSize, gizmoSize);	// Area widget (x, y, L, H)
+	
+	// Sincronizzazione
+	gizmoCamera.position.copy(camera.position);
+	gizmoCamera.position.sub(controls.target);			// Orbita su (0,0,0)
+	gizmoCamera.position.setLength(2.5);				// Distanza camera
+	gizmoCamera.lookAt(0, 0, 0);						// Targhet camera
+	renderer.render(gizmoScene, gizmoCamera);
 }
 animate();
 
@@ -215,13 +215,13 @@ const popup = document.getElementById("cookie-popup");
 const overlay = document.getElementById("cookie-overlay");
 
 document.getElementById("cookie-info-btn").onclick = () => {
-    popup.style.display = "block";
-    overlay.style.display = "block";
+	popup.style.display = "block";
+	overlay.style.display = "block";
 };
 
 overlay.onclick = () => {
-    popup.style.display = "none";
-    overlay.style.display = "none";
+	popup.style.display = "none";
+	overlay.style.display = "none";
 };
 
 // IMPOSTAZIONI ANALISI ----------------------------------------------------------------------------
@@ -231,34 +231,34 @@ const remBtn = document.getElementById("removeDamping");
 const rightCol = document.querySelector("#damping-form .column-right");
 
 addBtn.addEventListener("click", () => {
-    const existingInputs = rightCol.querySelectorAll("label");
-    if (existingInputs.length >= 2) {
-        alert("Non puoi aggiungere più di 4 valori ζ in totale!");
-        return;
-    }
+	const existingInputs = rightCol.querySelectorAll("label");
+	if (existingInputs.length >= 2) {
+		alert("Non puoi aggiungere più di 4 valori ζ in totale!");
+		return;
+	}
 
-    const number = 2 + existingInputs.length + 1; // ζ1 e ζ2 già contano
+	const number = 2 + existingInputs.length + 1; // ζ1 e ζ2 già contano
 
-    const label = document.createElement("label");
-    label.innerHTML = `ζ${number}: <input type="number" placeholder="5.00 %">`;
+	const label = document.createElement("label");
+	label.innerHTML = `ζ${number}: <input type="number" placeholder="5.00 %">`;
 
-    // Inserisci prima del pulsante "-"
-    rightCol.insertBefore(label, remBtn);
+	// Inserisci prima del pulsante "-"
+	rightCol.insertBefore(label, remBtn);
 
-    // Mostra il pulsante "-"
-    remBtn.style.display = "block";
+	// Mostra il pulsante "-"
+	remBtn.style.display = "block";
 });
 
 remBtn.addEventListener("click", () => {
-    const allInputs = rightCol.querySelectorAll("label");
-    if (allInputs.length > 0) {
-        allInputs[allInputs.length - 1].remove();
-    }
+	const allInputs = rightCol.querySelectorAll("label");
+	if (allInputs.length > 0) {
+		allInputs[allInputs.length - 1].remove();
+	}
 
-    // Nascondi "-" se non ci sono più input aggiuntivi
-    if (rightCol.querySelectorAll("label").length === 0) {
-        remBtn.style.display = "none";
-    }
+	// Nascondi "-" se non ci sono più input aggiuntivi
+	if (rightCol.querySelectorAll("label").length === 0) {
+		remBtn.style.display = "none";
+	}
 });
 
 // ANALISI MODALE ----------------------------------------------------------------------------------
@@ -443,8 +443,8 @@ function usaRisultati(modale) {
 
 	phiModes = modale.phi;
 	if (parametri.T.length > 0) {
-		document.getElementById("analisiOutput").style.display = "block";
-		document.getElementById("AnalisiDropdown").style.display = "block";
+		document.getElementById("analisiOutput").style.display = "flex";
+		document.getElementById("analisiDropdown").style.display = "flex";
 	}
 	aggiornaTabella(btn.dataset.value);
 	aggiornaDropdown();
@@ -481,56 +481,403 @@ window.addEventListener("load", () => {
 });
 
 // DEFORMAZIONE MODALE -----------------------------------------------------------------------------
-let phiModes = null;
-function applicaModo(modeIndex, scale = 10) {
-    if (!phiModes) return;
-    let dofIndex = 0;
-    puntiAggiunti.forEach(p => {
-        const vincolato = p.userData.v;
-        let ux = 0, uy = 0, uz = 0;
+// Scala colorata
+const colorSwitch = document.getElementById("colorSwitch");
 
-        if (!vincolato) {
-            ux = phiModes[dofIndex + 0][modeIndex];
-            uy = phiModes[dofIndex + 1][modeIndex];
-            uz = phiModes[dofIndex + 2][modeIndex];
-            dofIndex += 6;
-        }
+colorSwitch.addEventListener("change", () => {
+	if (currentModeIndex === null) return;
+	applicaModo(currentModeIndex);
+});
 
-        const orig = p.userData.originalPosition;
-        p.position.set(
-            orig.x + scale * uy,
-            orig.y + scale * uz,
-            orig.z + scale * ux
-        );
-    });
-
-    aggiornaGeometriaLinee();
+function arcobaleno(t) {
+	const hue = (1 - t) * 270;
+	return new THREE.Color().setHSL(hue / 360, 0.8, 0.4);
 }
 
-function aggiornaGeometriaLinee() {
-    linee.forEach(line => {
-        const p1 = line.userData.p1.position;
-        const p2 = line.userData.p2.position;
-        const dir = new THREE.Vector3().subVectors(p2, p1);
-        const length = dir.length();
+function calcolaMaxSpostamento(modeIndex, scale) {
+	let max = 0;
+	let dofIndex = 0;
+	puntiAggiunti.forEach(p => {
+		if (!p.userData.v) {
+			const ux = phiModes[dofIndex + 0][modeIndex];
+			const uy = phiModes[dofIndex + 1][modeIndex];
+			const uz = phiModes[dofIndex + 2][modeIndex];
+			const d = scale * Math.sqrt(ux*ux + uy*uy + uz*uz);
+			if (d > max) max = d;
+			dofIndex += 6;
+		}
+	});
+	return max || 1;
+}
 
-        line.geometry.dispose();
-        line.geometry = new THREE.CylinderGeometry(0.05, 0.05, length, 5);
-        line.position.copy(p1).add(p2).divideScalar(2);
-        line.quaternion.setFromUnitVectors(
-            new THREE.Vector3(0, 1, 0),
-            dir.clone().normalize()
-        );
-    });
+// Scala normata
+function calcolaScalaModo(modeIndex) {
+	if (!phiModes) return 1;
+
+	let maxVal = 0;
+
+	for (let i = 0; i < phiModes.length; i++) {
+		const val = Math.abs(phiModes[i][modeIndex]);
+		if (val > maxVal) maxVal = val;
+	}
+
+	// Evita divisione per zero
+	if (maxVal === 0) return 1;
+
+	return 1 / maxVal;
+}
+
+let currentModeIndex = null;
+
+// Elementi UI scala
+const autoScaleSwitch = document.getElementById("autoScaleSwitch");
+const scaleInput = document.getElementById("scaleInput");
+
+function getScaleAttuale(modeIndex) {
+	if (autoScaleSwitch.checked) {
+		const s = calcolaScalaModo(modeIndex);
+		scaleInput.value = s.toFixed(4);
+		return s;
+	} else {
+		const val = parseFloat(scaleInput.value);
+		return isNaN(val) || val <= 0 ? 1 : val;
+	}
+}
+
+// Switch auto-scala: ricalcola e ridisegna il modo corrente
+autoScaleSwitch.addEventListener("change", () => {
+	if (currentModeIndex === null) return;
+	applicaModo(currentModeIndex);
+});
+
+// Campo scala manuale: ridisegna se c'è un modo attivo e lo switch è spento
+scaleInput.addEventListener("change", () => {
+	if (currentModeIndex === null) return;
+	if (autoScaleSwitch.checked) return;  // in auto, il campo è read-only
+	applicaModo(currentModeIndex);
+});
+
+let phiModes = null;
+
+function applicaModo(modeIndex, scale = null) {
+	if (!phiModes) return;
+	currentModeIndex = modeIndex;
+	piani.forEach(f => f.visible = false);
+	amds.forEach(a => a.visible = false);
+	puntiAggiunti.forEach(p => {
+		if (p.userData.frecciaForza)   p.userData.frecciaForza.visible   = false;
+		if (p.userData.frecciaMomento) p.userData.frecciaMomento.visible = false;
+		if (p.userData.frecciaMassa)   p.userData.frecciaMassa.visible   = false;
+	});
+	linee.forEach(l => {
+		if (l.userData.frecciaForza)   l.userData.frecciaForza.visible   = false;
+		if (l.userData.frecciaMomento) l.userData.frecciaMomento.visible = false;
+		if (l.userData.frecciaMassa)   l.userData.frecciaMassa.visible   = false;
+	});
+	if (scale === null) {
+		scale = getScaleAttuale(modeIndex);
+	}
+	const maxD = calcolaMaxSpostamento(modeIndex, scale);
+	let dofIndex = 0;
+	puntiAggiunti.forEach(p => {
+		const vincolato = p.userData.v;
+		let ux = 0, uy = 0, uz = 0;
+
+		if (!vincolato) {
+			ux = phiModes[dofIndex + 0][modeIndex];
+			uy = phiModes[dofIndex + 1][modeIndex];
+			uz = phiModes[dofIndex + 2][modeIndex];
+			dofIndex += 6;
+		}
+
+		const orig = p.userData.originalPosition;
+		p.position.set(
+			orig.x + scale * uy,
+			orig.y + scale * uz,
+			orig.z + scale * ux
+		);
+	});
+	// const colorSwitch = document.getElementById("colorSwitch");
+
+	if (colorSwitch.checked) {
+		// const maxD = calcolaMaxSpostamento(modeIndex, scale);
+		let dofIdx = 0;
+		puntiAggiunti.forEach(p => {
+			if (!p.userData.v) {
+				const ux = phiModes[dofIdx + 0][modeIndex];
+				const uy = phiModes[dofIdx + 1][modeIndex];
+				const uz = phiModes[dofIdx + 2][modeIndex];
+				const d = scale * Math.sqrt(ux*ux + uy*uy + uz*uz);
+				p.material.color.copy(arcobaleno(d / maxD));
+				dofIdx += 6;
+			} else {
+				p.material.color.copy(arcobaleno(0));
+			}
+		});
+	} else {
+		puntiAggiunti.forEach(p => p.material.color.copy(p.userData.defaultColor));
+	}
+
+	// Telaio fantasma: sfere originali invisibili, linee ghost
+	// puntiAggiunti.forEach(p => { p.visible = false; });
+	linee.forEach(line => {
+		// Crea la linea ghost se non esiste ancora
+		if (!line.userData.ghostLine) {
+			const p1orig = line.userData.originalP1;
+			const p2orig = line.userData.originalP2;
+			const dir = new THREE.Vector3().subVectors(p2orig, p1orig);
+			const length = dir.length();
+			const ghostGeo = new THREE.CylinderGeometry(0.02, 0.02, length, 5);
+			const ghostMat = new THREE.MeshBasicMaterial({
+				color: 0x888888,
+				transparent: true,
+				opacity: 0.25
+			});
+			const ghost = new THREE.Mesh(ghostGeo, ghostMat);
+			ghost.position.copy(p1orig).add(p2orig).divideScalar(2);
+			ghost.quaternion.setFromUnitVectors(
+				new THREE.Vector3(0, 1, 0),
+				dir.clone().normalize()
+			);
+			ghost.raycast = () => {};
+			scene.add(ghost);
+			line.userData.ghostLine = ghost;
+		}
+		line.userData.ghostLine.visible = true;
+	});
+
+	piani.forEach(f => f.visible = false);
+	amds.forEach(a => a.visible = false);
+	puntiAggiunti.forEach(p => {
+		if (p.userData.frecciaForza)   p.userData.frecciaForza.visible   = false;
+		if (p.userData.frecciaMomento) p.userData.frecciaMomento.visible = false;
+		if (p.userData.frecciaMassa)   p.userData.frecciaMassa.visible   = false;
+	});
+	linee.forEach(l => {
+		if (l.userData.frecciaForza)   l.userData.frecciaForza.visible   = false;
+		if (l.userData.frecciaMomento) l.userData.frecciaMomento.visible = false;
+		if (l.userData.frecciaMassa)   l.userData.frecciaMassa.visible   = false;
+	});
+
+	aggiornaGeometriaLinee(modeIndex, scale, maxD);
+	// aggiornaGeometriaLinee(modeIndex, scale);
+}
+
+function aggiornaGeometriaLinee(modeIndex, scale, maxD) {
+	// Caso reset
+	if (modeIndex === undefined) {
+		linee.forEach(line => {
+			const p1 = line.userData.p1.position;
+			const p2 = line.userData.p2.position;
+			const dir = new THREE.Vector3().subVectors(p2, p1);
+			const length = dir.length();
+			line.geometry.dispose();
+			line.geometry = new THREE.CylinderGeometry(0.05, 0.05, length, 5);
+			line.position.copy(p1).add(p2).divideScalar(2);
+			line.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+			line.material.vertexColors = false;
+			line.material.transparent = true;
+			line.material.opacity = COLORS.Clinea.opacity;
+			line.material.color.set(COLORS.Clinea.color);
+			line.material.needsUpdate = true;
+		});
+		return;
+	}
+
+	const doColor = colorSwitch.checked;
+
+	linee.forEach(line => {
+		const p1 = line.userData.p1;
+		const p2 = line.userData.p2;
+		const i1 = puntiAggiunti.indexOf(p1);
+		const i2 = puntiAggiunti.indexOf(p2);
+
+		function getDoFs(nodeIndex, isVincolato) {
+			if (isVincolato) return [0, 0, 0, 0, 0, 0];
+			let dofIdx = 0;
+			for (let k = 0; k < nodeIndex; k++) {
+				if (!puntiAggiunti[k].userData.v) dofIdx += 6;
+			}
+			return [0,1,2,3,4,5].map(d => phiModes[dofIdx + d][modeIndex]);
+		}
+
+		const u_i = getDoFs(i1, p1.userData.v);
+		const u_j = getDoFs(i2, p2.userData.v);
+
+		const orig = p1.userData.originalPosition;
+		const P0 = { x: orig.z, y: orig.x, z: orig.y };
+		const lineData = line.userData;
+
+		if (!lineData.E || !lineData.Im) {
+			const pa = p1.position, pb = p2.position;
+			const dir = new THREE.Vector3().subVectors(pb, pa);
+			const length = dir.length();
+			line.geometry.dispose();
+			line.geometry = new THREE.CylinderGeometry(0.05, 0.05, length, 5);
+			line.position.copy(pa).add(pb).divideScalar(2);
+			line.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir.clone().normalize());
+			return;
+		}
+
+		const { points: pts, displacements } = calcolaDeformataElemento(
+			u_i, u_j,
+			{ l: lineData.l, m: lineData.m, n: lineData.n },
+			P0, lineData.lunghezza, lineData, scale
+		);
+
+		line.geometry.dispose();
+		const curve = new THREE.CatmullRomCurve3(pts);
+		const nSeg = pts.length - 1;
+		const nTubeSeg = 5;
+		const geometry = new THREE.TubeGeometry(curve, nSeg, 0.05, nTubeSeg, false);
+
+		if (doColor) {
+			const vertexCount = geometry.attributes.position.count;
+			const colors = new Float32Array(vertexCount * 3);
+			const totalRings = nSeg + 1;
+
+			for (let ring = 0; ring < totalRings; ring++) {
+				const col = arcobaleno(Math.min(displacements[ring] / maxD, 1));
+				for (let v = 0; v <= nTubeSeg; v++) {
+					const idx = ring * (nTubeSeg + 1) + v;
+					colors[idx * 3 + 0] = col.r;
+					colors[idx * 3 + 1] = col.g;
+					colors[idx * 3 + 2] = col.b;
+				}
+			}
+
+			geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+			line.material.vertexColors = true;
+			line.material.color.set(0xffffff);
+			line.material.transparent = false;
+			line.material.opacity = 1;
+		} else {
+			line.material.vertexColors = false;
+			line.material.transparent = true;
+			line.material.opacity = COLORS.Clinea.opacity;
+			line.material.color.set(COLORS.Clinea.color);
+		}
+
+		line.material.needsUpdate = true;
+		line.geometry = geometry;
+		line.position.set(0, 0, 0);
+		line.quaternion.identity();
+	});
 }
 
 function resetModo() {
-    puntiAggiunti.forEach(p => {
-        if (p.userData.originalPosition) {
-            p.position.copy(p.userData.originalPosition);
+	currentModeIndex = null;
+	puntiAggiunti.forEach(p => {
+		if (p.userData.originalPosition) {
+			p.position.copy(p.userData.originalPosition);
+		}
+		// Reset colore nodi — sempre, indipendentemente dallo switch
+		p.material.color.copy(p.userData.defaultColor);
+	});
+	piani.forEach(f => f.visible = true);
+	amds.forEach(a => a.visible = true);
+	puntiAggiunti.forEach(p => {
+		if (p.userData.frecciaForza)   p.userData.frecciaForza.visible   = true;
+		if (p.userData.frecciaMomento) p.userData.frecciaMomento.visible = true;
+		if (p.userData.frecciaMassa)   p.userData.frecciaMassa.visible   = true;
+	});
+	linee.forEach(l => {
+		if (l.userData.ghostLine) l.userData.ghostLine.visible = false;
+		if (l.userData.frecciaForza)   l.userData.frecciaForza.visible   = true;
+		if (l.userData.frecciaMomento) l.userData.frecciaMomento.visible = true;
+		if (l.userData.frecciaMassa)   l.userData.frecciaMassa.visible   = true;
+	});
+	aggiornaGeometriaLinee();
+}
+
+// Rimuove dalla scena tutti i ghost delle linee correnti
+function rimuoviGhost() {
+    linee.forEach(line => {
+        if (line.userData.ghostLine) {
+            scene.remove(line.userData.ghostLine);
+            line.userData.ghostLine.geometry.dispose();
+            line.userData.ghostLine.material.dispose();
+            line.userData.ghostLine = null;
         }
     });
-    aggiornaGeometriaLinee();
+}
+
+// DEFORMAZIONE MODALE CON LINEA ELASTICA ----------------------------------------------------------
+function calcolaDeformataElemento(u_i, u_j, lmn, P0, L, lineData, scale) {
+	// Matrice di rotazione R (3×3): righe = [l, m, n]
+	const { l, m, n } = lmn;
+	const R = [
+		[l.l1, l.l2, l.l3],
+		[m.m1, m.m2, m.m3],
+		[n.n1, n.n2, n.n3]
+	];
+
+	// Parametri trave
+	const EI_m  = lineData.E * lineData.Im;
+	const EI_n  = lineData.E * lineData.In;
+	const GAs_m = lineData.G * lineData.ASm;
+	const GAs_n = lineData.G * lineData.ASn;
+
+	// Spostamenti nodali globali
+	function rot3(mat, v) {
+		return [
+			mat[0][0]*v[0] + mat[0][1]*v[1] + mat[0][2]*v[2],
+			mat[1][0]*v[0] + mat[1][1]*v[1] + mat[1][2]*v[2],
+			mat[2][0]*v[0] + mat[2][1]*v[1] + mat[2][2]*v[2]
+		];
+	}
+	// Spostamenti nodali globali
+	const ui_loc = [
+		...rot3(R, [u_i[0], u_i[1], u_i[2]]),
+		...rot3(R, [u_i[3], u_i[4], u_i[5]])
+	];
+	const uj_loc = [
+		...rot3(R, [u_j[0], u_j[1], u_j[2]]),
+		...rot3(R, [u_j[3], u_j[4], u_j[5]])
+	];
+
+	// Condizioni al contorno
+	const ul_0 = ui_loc[0], ul_L = uj_loc[0];   // spost. assiale
+	const wm_0 = ui_loc[1], wm_L = uj_loc[1];   // traslaz. in m
+	const vn_0 = ui_loc[2], vn_L = uj_loc[2];   // traslaz. in n
+	const φm_0 = ui_loc[4], φm_L = uj_loc[4];   // rotaz. in m (flessione piano l-n)
+	const φn_0 = ui_loc[5], φn_L = uj_loc[5];   // rotaz. in n (flessione piano l-m)
+
+	// N divisioni, una ogni 25cm
+	const points = [];
+	const displacements = [];
+	const nPunti = Math.ceil(L / 0.25) + 1;
+	for (let i = 0; i < nPunti; i++) {
+		const z = i * (L / (nPunti - 1));
+
+		// Spostamento
+		const u_l = (L*ul_0 - z*(ul_0 - ul_L))/L
+
+		const w_m = (L*wm_0*(12*EI_n + GAs_n*L**2) + z**2*(-6*EI_n*φn_0 + 6*EI_n*φn_L - 2*GAs_n*L**2*φn_0 - GAs_n*L**2*φn_L - 3*GAs_n*L*wm_0 + 3*GAs_n*L*wm_L + GAs_n*z*(L*φn_0 + L*φn_L + 2*wm_0 - 2*wm_L)) - z*(6*EI_n*(L*φn_0 + L*φn_L + 2*wm_0 - 2*wm_L) - L*φn_0*(12*EI_n + GAs_n*L**2)))/(L*(12*EI_n + GAs_n*L**2))
+
+		const v_n = (L*vn_0*(12*EI_m + GAs_m*L**2) + z**2*(6*EI_m*φm_0 - 6*EI_m*φm_L + 2*GAs_m*L**2*φm_0 + GAs_m*L**2*φm_L - 3*GAs_m*L*vn_0 + 3*GAs_m*L*vn_L - GAs_m*z*(L*φm_0 + L*φm_L - 2*vn_0 + 2*vn_L)) + z*(6*EI_m*(L*φm_0 + L*φm_L - 2*vn_0 + 2*vn_L) - L*φm_0*(12*EI_m + GAs_m*L**2)))/(L*(12*EI_m + GAs_m*L**2))
+
+		displacements.push(scale * Math.sqrt(u_l*u_l + w_m*w_m + v_n*v_n));
+
+		// Posizione deformata in coord. locali: [z + u_l, w_m, v_n]
+		const pos_loc = [z + scale * u_l, scale * w_m, scale * v_n];
+
+		// Rotazione in coord. strutturali globali: pos_glob = R^T * pos_loc + P0
+		const RT = [[R[0][0], R[1][0], R[2][0]],
+					[R[0][1], R[1][1], R[2][1]],
+					[R[0][2], R[1][2], R[2][2]]];
+		const pg = rot3(RT, pos_loc);
+
+		// Aggiunta P0 (posizione nodo i, coord. strutturali)
+		const x_str = pg[0] + P0.x;
+		const y_str = pg[1] + P0.y;
+		const z_str = pg[2] + P0.z;
+
+		// Permutazione → Three.js: (x_str, y_str, z_str) → THREE(y_str, z_str, x_str)
+		points.push(new THREE.Vector3(y_str, z_str, x_str));
+	}
+
+	return { points, displacements };
 }
 
 // APERTURA MODELLO --------------------------------------------------------------------------------
@@ -1147,6 +1494,7 @@ function disegnaCaricoPunto(p, carico) {
 	}
 }
 function disegnaCaricoLinea(l, carico) {
+	l.updateMatrixWorld(true);
 	const { Fx, Fy, Fz, Mx, My, Mz, Mass } = carico;
 
 	const L = l.userData.lunghezza;
@@ -1212,6 +1560,7 @@ function disegnaCaricoLinea(l, carico) {
 // Reset
 function resetAnalisi() {
 	sessionStorage.clear();
+	rimuoviGhost();
 
 	puntiAggiunti.forEach(p => scene.remove(p));
 	linee.forEach(l => scene.remove(l));
@@ -1241,6 +1590,7 @@ function apriModello(jsonData, fileName) {
 	linee.forEach(l => scene.remove(l));
 	piani.forEach(f => scene.remove(f));
 	amds.forEach(a => scene.remove(a));
+	rimuoviGhost(); 
 
 	puntiAggiunti = [];
 	linee = [];
@@ -1285,6 +1635,13 @@ function apriModello(jsonData, fileName) {
 		line.userData.sezione = l.sezione
 		line.userData.originalP1 = p1.position.clone();
 		line.userData.originalP2 = p2.position.clone();
+
+		line.userData.E   = l.E;
+		line.userData.G   = l.G;
+		line.userData.Im  = l.Im;
+		line.userData.In  = l.In;
+		line.userData.ASm = l.ASm;
+		line.userData.ASn = l.ASn;
 
 		// carichi
 		if (l.load !== null) {
@@ -1542,7 +1899,7 @@ function aggiornaTabella(tipoSelezionato) {
 
 // RISULTATI ---------------------------------------------------------------------------------------
 const initial = JSON.parse(
-    sessionStorage.getItem("risultatoAnalisi")
+	sessionStorage.getItem("risultatoAnalisi")
 );
 let html = "";
 html += `<b>GRADI DI LIBERTÀ:</b><br>`;
@@ -1577,7 +1934,7 @@ resetBtn.addEventListener("click", () => {
 
 	// Nasconde area risultati
 	document.getElementById("analisiOutput").style.display = "none";
-	document.getElementById("AnalisiDropdown").style.display = "none";
+	document.getElementById("analisiDropdown").style.display = "none";
 	document.getElementById("plotRisultatiModali").innerHTML = "";
 
 	const dampingInputs = document.querySelectorAll("#damping-form input");
@@ -1621,7 +1978,7 @@ function salvaModelloConAnalisi() {
 	const modello = modelloSalvato.modello || {};
 
 	// Analisi preliminare
-    const analisiPreliminare = JSON.parse(sessionStorage.getItem("risultatoAnalisi")) || null;
+	const analisiPreliminare = JSON.parse(sessionStorage.getItem("risultatoAnalisi")) || null;
 
 	// Analisi modale
 	const analisiSalvata = JSON.parse(sessionStorage.getItem("analisiModaleCompleta")) || null;
