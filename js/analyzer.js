@@ -822,7 +822,7 @@ document.getElementById("resetALL").addEventListener("click", () => {
 
 document.getElementById("escBtn").addEventListener("click", () => {
 	sessionStorage.removeItem("analisiModaleCompleta");
-	window.location.href = "index.html";
+	window.location.href = "../";
 });
 
 document.getElementById("saveModel").addEventListener("click", () => {
@@ -844,7 +844,7 @@ document.getElementById("loadModel").addEventListener("change", function(e) {
 	reader.onload = function() {
 		const json = JSON.parse(reader.result);
 		sessionStorage.setItem("modelloStruttura", JSON.stringify({ nomeFile: json.nomeFile, modello: json.modello }));
-		if (!json.analisiPreliminare) { window.location.href = "index.html"; return; }
+		if (!json.analisiPreliminare) { window.location.href = "../"; return; }
 		sessionStorage.setItem("risultatoAnalisi", JSON.stringify(json.analisiPreliminare));
 		if (json.analisiModale) sessionStorage.setItem("analisiModaleCompleta", JSON.stringify(json.analisiModale));
 		else sessionStorage.removeItem("analisiModaleCompleta");
