@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Framely — Analisi</title>
+
+	<link rel="stylesheet" href="../style.css">
+	<link rel="icon" href="../logo_framely.svg?v=1" type="image/svg+xml">
+
+	<script type="importmap">
+	{
+		"imports": {
+			"three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+			"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+		}
+	}
+	</script>
+
+	<!-- Plotly (opzionale, per grafici futuri) -->
+	<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+
+	<!-- LOGO -->
+	<img src="../logo_framely.svg" alt="Logo Framely" class="logo">
+
+	<!-- BARRA FILE -->
+	<div id="fileBar">
+		<button id="resetALL" title="Reset analisi"></button>
+		<input id="nomeFile" placeholder="Modello senza nome">
+		<div class="file-actions">
+			<button id="saveModel"    title="Salva"></button>
+			<button id="loadModelBtn" title="Apri"></button>
+			<input  type="file" id="loadModel" accept=".stc">
+		</div>
+	</div>
+
+	<!-- TOOLBAR PRINCIPALE -->
+	<div id="smart">
+		<button id="resetCamBtn"   title="Vista home"></button>
+		<button id="undoBtn"       title="Annulla"></button>
+		<button id="redoBtn"       title="Ripristina"></button>
+		<button id="deleteBtn"     title="Elimina"></button>
+		<button id="fullScreenBtn" title="Schermo intero"></button>
+		<button id="listBtn"       title="Elenco elementi"></button>
+	</div>
+
+	<!-- VERSIONE E UNITÀ -->
+	<div id="unit">
+		<p>v 1.0.0 <br> [m kN t s deg]</p>
+	</div>
+
+	<!-- COOKIE BANNER -->
+	<div id="cookie-banner">
+		<span id="cookie-info-btn">Informativa cookie</span>
+	</div>
+	<div id="cookie-overlay"></div>
+	<div id="cookie-popup">
+		<p>
+			Questo sito utilizza esclusivamente cookie tecnici di sessione, necessari
+			al corretto funzionamento dell'applicazione. Non vengono utilizzati cookie
+			di profilazione o di terze parti.
+		</p>
+	</div>
+
+	<!-- PULSANTE TORNA AL MODELER -->
+	<button id="escBtn">Annulla</button>
+
+	<!-- OVERLAY CARICAMENTO -->
+	<div id="loadingOverlay">
+		<div class="loadingContent">
+			<p id="loadingMsg">Analisi in corso...</p>
+			<div class="spinner"></div>
+			<button id="cancelAnalysisBtn">Annulla</button>
+		</div>
+	</div>
+
+	<!-- RIBBON CON I TAB -->
+	<div id="ribbon">
+		<button class="tab active" data-target="tab-Amodale">Modale</button>
+		<button class="tab"        data-target="tab-Astatica">Statica</button>
+		<button class="tab big"        data-target="tab-Aspettrale">Spettrale</button>
+		<button class="tab big"        data-target="tab-Adinamica">Dinamica</button>
+		<button class="tab big"        data-target="tab-Genetica">Genetica</button>
+	</div>
+	<div class="panels">
+
+		<!-- ANALISI MODALE -->
+		<div class="panel active" id="tab-Amodale">
+			<div id="damping-form" class="box">
+				<div class="inputs column-left">
+					<label>ζ1: <input type="number" placeholder="5.00 %"></label>
+					<label>ζ2: <input type="number" placeholder="5.00 %"></label>
+					<button id="addDamping">+</button>
+				</div>
+				<div class="inputs column-right">
+					<button id="removeDamping">-</button>
+				</div>
+			</div>
+			<div id="rayleigh-damping" class="box">
+				<label class="switch">
+					<input type="checkbox" id="rayleighToggle">
+					<span class="slider"></span>
+				</label>
+				<span class="switch-label">Rayleigh</span>
+			</div>
+
+			<div class="box">
+				<div class="inputs">
+					<div id="Dsisma-form" class="inputs">
+						<label>x: <input type="number" id="dir-x" placeholder="100 %"></label>
+						<label>y: <input type="number" id="dir-y" placeholder="100 %"></label>
+					</div>
+					<div id="NMode-form" class="inputs">
+						<label>N modi: <input type="number" placeholder="12"></label>
+					</div>
+				</div>
+			</div>
+			<button id="ModalAnalisiBtn" class="analisiBtn">Analisi<br>Modale</button>
+		</div>
+
+		<!-- ANALISI STATICA (placeholder) -->
+		<div class="panel" id="tab-Astatica">
+			<div class="menu-container">
+				<span>Materiale</span>
+				<button class="dropdown-btn">C25/30</button>
+				<div class="dropdown-list" id="dropdownMat">
+					<div>C25/30</div><div>S355</div><div>B450C</div>
+					<div class="new-btn">Nuovo</div>
+				</div>
+			</div>
+			<div class="menu-container" data-type="sezione">
+				<span>Sezione</span>
+				<button class="dropdown-btn">PIL_30x30</button>
+				<div class="dropdown-list" id="dropdownSez">
+					<div>PIL_30x30</div><div>TRAV_50x30</div>
+					<div class="new-btn">Nuovo</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- ANALISI SPETTRALE (placeholder) -->
+		<div class="panel" id="tab-Aspettrale">
+			<div id="mode">
+				<button id="createFloorBtn">Crea Solaio</button>
+			</div>
+		</div>
+
+		<!-- ANALISI DINAMICA (placeholder) -->
+		<div class="panel" id="tab-Adinamica">
+			<div id="load-form">
+				<div class="inputs">
+					<label>Fx: <input type="number" id="Fx-input" value="0"></label>
+					<label>Fy: <input type="number" id="Fy-input" value="0"></label>
+					<label>Fz: <input type="number" id="Fz-input" value="0"></label>
+				</div>
+				<div class="inputs">
+					<label>Mx: <input type="number" id="Mx-input" value="0"></label>
+					<label>My: <input type="number" id="My-input" value="0"></label>
+					<label>Mz: <input type="number" id="Mz-input" value="0"></label>
+				</div>
+				<button id="apply-load-p">Aggiungi carico</button>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- PANNELLO OUTPUT ANALISI (tabella modi + controlli) -->
+	<div id="analisiOutput" style="display:none">
+		<button id="togglePanel" class="toggle-btn" title="Risultati grafici"></button>
+		<div class="box menu-container" id="analisiDropdown" style="display:none">
+			<div id="auto-scale">
+				<label class="switch">
+					<input type="checkbox" id="autoScaleSwitch" checked>
+					<span class="slider"></span>
+				</label>
+				<span class="switch-label">Auto scala</span>
+			</div>
+			<div class="inputs">
+				<label>Scala: <input type="number" id="scaleInput" step="0.1" value="1"></label>
+			</div>
+			<div id="color-scale">
+				<label class="switch">
+					<input type="checkbox" id="colorSwitch" checked>
+					<span class="slider"></span>
+				</label>
+				<span class="switch-label">Colore</span>
+			</div>
+			<button class="dropdown-btn" id="dropdownBtn">Periodo T</button>
+			<div class="dropdown-list" id="dropdownList">
+				<div data-value="T">Periodo T</div>
+				<div data-value="f">Frequenza f</div>
+				<div data-value="ω">Pulsazione ω</div>
+				<div data-value="ω_NC">ω Non classico</div>
+				<div data-value="ζ">Smorzamento ζ</div>
+				<div data-value="ζ_NC">ζ Non classico</div>
+				<div data-value="Δζ">Differenza ζ</div>
+				<div data-value="M_part">Massa</div>
+			</div>
+		</div>
+		<div class="analisiOutputOut">
+			<table id="modiTable">
+				<tbody></tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- PANNELLO ELENCO ELEMENTI (sola lettura) -->
+	<div id="list-panel">
+		<div class="panel-header">
+			<h4>Elenco punti</h4>
+			<button id="exportCSV-point" title="Export punti"></button>
+		</div>
+		<ul id="points-list"></ul>
+
+		<div class="panel-header">
+			<h4>Elenco telai</h4>
+			<button id="exportCSV-line" title="Export linee"></button>
+		</div>
+		<ul id="lines-list"></ul>
+
+		<div class="panel-header">
+			<h4>Elenco solai</h4>
+			<button id="exportCSV-floor" title="Export solai"></button>
+		</div>
+		<ul id="floors-list"></ul>
+
+		<div class="panel-header">
+			<h4>Elenco AMD</h4>
+			<button id="exportCSV-amd" title="Export AMD"></button>
+		</div>
+		<ul id="amd-list"></ul>
+	</div>
+
+	<!-- Riquadri risultati testuali -->
+	<div id="analisiGroup">
+		<button id="toggleRisultati" class="toggle-btn" title="Risultati testuali"></button>
+		<div id="plotRisultati" class="analysis-results"></div>
+		<div id="plotRisultatiModali" class="analysis-results"></div>
+	</div>
+
+	<!-- SCRIPT PRINCIPALI -->
+	<script type="module" src="../js/ui.js"></script>
+	<script type="module" src="../js/analyzer.js"></script>
+
+	<!-- TAB SWITCHER -->
+	<script>
+		document.querySelectorAll(".tab").forEach(t => {
+			t.addEventListener("click", () => {
+				document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+				document.querySelectorAll(".panel").forEach(x => x.classList.remove("active"));
+				t.classList.add("active");
+				document.getElementById(t.dataset.target).classList.add("active");
+			});
+		});
+
+		document.getElementById("togglePanel").addEventListener("click", () => {
+			document.getElementById("analisiOutput").classList.toggle("open");
+			document.getElementById("analisiGroup").classList.remove("open");
+		});
+		document.getElementById("toggleRisultati").addEventListener("click", () => {
+			document.getElementById("analisiGroup").classList.toggle("open");
+			document.getElementById("analisiOutput").classList.remove("open");
+		});
+	</script>
+
+</body>
+</html>
