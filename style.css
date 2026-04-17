@@ -243,6 +243,7 @@ input:checked + .slider:before {
 	gap:			5px;
 	border-radius:	var(--px-l);
 	padding:		var(--px-xs);
+	/* background:		var(--bg-2-50); */
 	box-shadow: 	var(--shadow);
 	cursor:			default;
 	display:		flex;
@@ -251,15 +252,6 @@ input:checked + .slider:before {
 	overflow-x:		auto;
 	overflow-y:		hidden;
 	-webkit-overflow-scrolling: touch;
-}
-#ribbon::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	backdrop-filter: blur(3px);
-	background: var(--bg-2-50);
-	border-radius: inherit;
-	z-index: -1;
 }
 #ribbon::-webkit-scrollbar { display: none }
 .tab {
@@ -291,21 +283,13 @@ input:checked + .slider:before {
 	border-radius:	var(--px-l);
 	flex-direction:	row;
 	gap:			var(--px-s);
+	background:		var(--bg-2-50);
 	box-shadow: 	var(--shadow);
 	max-width:		calc(100vw - var(--px-s) - 40px);
 	flex-wrap:		nowrap;
 	overflow-x:		auto;
 	overflow-y:		hidden;
 	-webkit-overflow-scrolling: touch;
-}
-.panel::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	backdrop-filter: blur(3px);
-	background: var(--bg-2-50);
-	border-radius: inherit;
-	z-index: -1;
 }
 .panel::-webkit-scrollbar { display: none }
 .panel.active { display: flex }
@@ -322,7 +306,6 @@ input:checked + .slider:before {
 	gap:			var(--px-s);
 	padding:		var(--px-xs) var(--px-s);
 	background:		var(--bg-2-50);
-	backdrop-filter: blur(3px);
 	border-radius:	var(--px-l);
 	box-shadow:		var(--shadow);
 }
@@ -678,7 +661,6 @@ input:checked + .slider:before {
 	border-radius:	var(--px-l);
 	gap:			var(--px-s);
 	background:		var(--bg-2-50);
-	backdrop-filter: blur(3px);
 	box-shadow: 	var(--shadow);
 	transition:		transform 0.3s ease;
 	z-index: 10;
@@ -879,7 +861,6 @@ input:checked + .slider:before {
 }
 @media (max-width: 1000px) {
 	#ribbon {
-		position:		fixed;
 		top:			60px;
 		left:			10px;
 	}
@@ -887,9 +868,7 @@ input:checked + .slider:before {
 		top:			110px;
 		left:			10px;
 	}
-	.dropdown-list {
-		top:			210px;
-	}
+	.dropdown-list { top: 210px }
 	#fileBar {
 		top:			10px;
 		left:			55px;
