@@ -2,7 +2,7 @@
 // modeler.js - Logica principale del modeler - Solo index.html
 // Global state, Selection rectangle, List update, Floors creation functions,
 // Amds, Constraints, Loads, Selection, Elements, Delete, Line / Floor / Point Mode, 
-// Sections / Materials Menu, Undo / Redo, Save / Load / Reset, Analyses
+// View Sections / Materials, Sections / Materials Menu, Undo / Redo, Save / Load / Reset, Analyses
 // =================================================================================================
 
 import * as THREE from "three";
@@ -35,6 +35,9 @@ let lineMode          = false;										// Modalità disegno
 let floorMode         = false;
 let firstPoint        = null;
 let floorPoints       = [];
+
+let vistaLinee        = null;										// Colori visualizzazione
+let legendaDiv        = null;										// Legenda colori visualizzati
 
 let isDragging        = false;										// Selezione con rettangolo
 let dragStart         = null;
@@ -738,21 +741,128 @@ document.querySelectorAll(".tab").forEach(tab => {
 			case "tab-solai":
 				floorMode = true; lineMode = false;
 				deselezioneTotale(); firstPoint = null; floorPoints = [];
+				resetVistaLinee();
 				break;
 			default:
 				lineMode = false; floorMode = false;
 				resetFirstPoint(); resetFloorSelection();
+				resetVistaLinee();
 		}
 	});
 });
 
+// VIEW SECTIONS / MATERIALS -----------------------------------------------------------------------
+function generaPalette(chiavi) {									// Generatore palette colori HSL
+	const palette = {};
+	chiavi.forEach((k, i) => {
+		const hue = Math.round((i / chiavi.length) * 360);
+		palette[k] = new THREE.Color(`hsl(${hue}, 70%, 55%)`).getHex();
+	});
+	return palette;
+}
+
+// Attiva la colorazione delle linee per sezione o materiale
+function attivaVistaLinee(tipo) {
+	const valori = [...new Set(linee.map(l => l.userData[tipo]))].filter(Boolean);
+	if (valori.length === 0) return;
+
+	const palette = generaPalette(valori);
+	const coloreDefault = new THREE.Color(COLORS.Clinea.color);
+
+	linee.forEach(l => {
+		const val = l.userData[tipo];
+		l.userData.defaultColor = val && palette[val] !== undefined
+			? new THREE.Color(palette[val])
+			: coloreDefault.clone();
+	});
+	aggiornaSelezioneLinee();
+	mostraLegenda(tipo, palette);
+}
+
+// Ripristina i colori originali delle linee e nasconde la legenda
+function disattivaVistaLinee() {
+	const coloreDefault = new THREE.Color(COLORS.Clinea.color);
+	linee.forEach(l => { l.userData.defaultColor = coloreDefault.clone(); });
+	aggiornaSelezioneLinee();
+	nascondeLegenda();
+}
+
+// Legenda
+function mostraLegenda(tipo, palette) {
+	nascondeLegenda();
+	legendaDiv = document.createElement("div");
+	legendaDiv.id = "vistaLegenda";
+
+	const titolo = document.createElement("div");
+	titolo.className = "legenda-titolo";
+	titolo.textContent = tipo === "sezione" ? "Sezioni" : "Materiali";
+	legendaDiv.appendChild(titolo);
+
+	Object.entries(palette).forEach(([nome, hex]) => {
+		const row = document.createElement("div");
+		row.className = "legenda-row";
+
+		const dot = document.createElement("span");
+		dot.className = "legenda-dot";
+		dot.style.background = "#" + hex.toString(16).padStart(6, "0");
+
+		const label = document.createElement("span");
+		label.textContent = nome;
+
+		row.appendChild(dot);
+		row.appendChild(label);
+		legendaDiv.appendChild(row);
+	});
+
+	document.body.appendChild(legendaDiv);
+}
+
+function nascondeLegenda() {
+	if (legendaDiv) { legendaDiv.remove(); legendaDiv = null; }
+}
+
+// Toggle switches
+const switchSezione   = document.getElementById("viewSezione");
+const switchMateriale = document.getElementById("viewMateriale");
+
+switchSezione.addEventListener("change", () => {
+	if (switchSezione.checked) {
+		switchMateriale.checked = false;
+		vistaLinee = "sezione";
+		attivaVistaLinee("sezione");
+	} else {
+		vistaLinee = null;
+		disattivaVistaLinee();
+	}
+});
+
+switchMateriale.addEventListener("change", () => {
+	if (switchMateriale.checked) {
+		switchSezione.checked = false;
+		vistaLinee = "materiale";
+		attivaVistaLinee("materiale");
+	} else {
+		vistaLinee = null;
+		disattivaVistaLinee();
+	}
+});
+
+export function resetVistaLinee() {
+	if (!vistaLinee) return;
+	switchSezione.checked   = false;
+	switchMateriale.checked = false;
+	vistaLinee = null;
+	disattivaVistaLinee();
+}
+
 // SECTIONS / MATERIALS MENU -----------------------------------------------------------------------
 function toggleDropdown(container) {
 	document.querySelectorAll(".menu-container").forEach(other => {
-		if (other !== container) other.querySelector(".dropdown-list").style.display = "none";
+		const list = other.querySelector(".dropdown-list");
+		if (other !== container && list) list.style.display = "none";
 	});
 	const list = container.querySelector(".dropdown-list");
-	list.style.display = list.style.display === "block" ? "none" : "block";
+	if (list) list.style.display = list.style.display === "block" ? "none" : "block";
 }
 
 function selectItem(container, name) {
@@ -965,11 +1075,16 @@ document.getElementById("matLibraryClose").addEventListener("click", () => matLi
 // Setup dropdown al caricamento
 document.addEventListener("DOMContentLoaded", () => {
 	document.querySelectorAll(".menu-container").forEach(container => {
-		container.querySelector(".dropdown-btn").addEventListener("click", () => toggleDropdown(container));
-		container.querySelectorAll(".dropdown-list div:not(.new-btn)").forEach(item => {
+		const dropdownBtn  = container.querySelector(".dropdown-btn");
+		const dropdownList = container.querySelector(".dropdown-list");
+		const newBtn       = container.querySelector(".new-btn");
+		if (!dropdownBtn || !dropdownList) return;  // container senza dropdown — salta
+
+		dropdownBtn.addEventListener("click", () => toggleDropdown(container));
+		dropdownList.querySelectorAll("div:not(.new-btn)").forEach(item => {
 			item.addEventListener("click", () => selectItem(container, item.innerText));
 		});
-		container.querySelector(".new-btn").addEventListener("click", () => {
+		if (newBtn) newBtn.addEventListener("click", () => {
 			if (container.querySelector("span").innerText.includes("Sez")) openSectionPopup(container);
 			else openMaterialPopup(container);
 		});
@@ -1184,8 +1299,8 @@ export function apriModello(jsonData, fileName) {
 	history = []; redoStack = [];
 	if (fileName) document.getElementById("nomeFile").value = fileName.replace(/\.[^/.]+$/, "");
 
-	camera.position.copy(initCamPos);
-	controls.target.copy(initTarPos);
+	// camera.position.copy(initCamPos);
+	// controls.target.copy(initTarPos);
 	controls.update();
 
 	svuotaScena();

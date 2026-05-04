@@ -55,9 +55,7 @@
 	</div>
 
 	<!-- VERSIONE E UNITÀ DI MISURA -->
-	<div id="unit">
-		<p>v 1.0.0 <br> [m kN t s deg]</p>
-	</div>
+	<div id="unit"></div>
 
 	<!-- COOKIE BANNER -->
 	<div id="cookie-banner">
@@ -108,7 +106,7 @@
 
 		<!-- TELAI -->
 		<div class="panel" id="tab-linee">
-			<div class="box menu-container bigButton">
+			<div class="box menu-container bigButton" data-type="materiale">
 				<span>Materiale</span>
 				<button class="dropdown-btn">C25/30</button>
 				<div class="dropdown-list" id="dropdownMat">
@@ -125,6 +123,25 @@
 					<div>PIL_30x30</div>
 					<div>TRAV_50x30</div>
 					<div class="new-btn">Nuovo</div>
+				</div>
+			</div>
+			<div class="box menu-container">
+				<span>Visualizza</span>
+				<div class="switch-group">
+					<div class="switch-div">
+						<label class="switch">
+							<input type="checkbox" id="viewMateriale">
+							<span class="slider"></span>
+						</label>
+						<span class="switch-label">Materiale</span>
+					</div>
+					<div class="switch-div">
+						<label class="switch">
+							<input type="checkbox" id="viewSezione">
+							<span class="slider"></span>
+						</label>
+						<span class="switch-label">Sezione</span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -264,7 +281,7 @@
 		</div>
 	</div>
 
-	<!-- SCRIPT PRINCIPALI (ES modules) -->
+	<!-- SCRIPT PRINCIPALI -->
 	<script type="module" src="js/ui.js"></script>
 	<script type="module" src="js/modeler.js"></script>
 
@@ -278,6 +295,13 @@
 				document.getElementById(t.dataset.target).classList.add("active");
 			});
 		});
+	</script>
+	<script type="module">
+		import { APP_VERSION, APP_UNITS } from "./js/ui.js";
+
+		document.getElementById("unit").innerHTML = `
+			<p>${APP_VERSION} <br> ${APP_UNITS}</p>
+		`;
 	</script>
 
 </body>

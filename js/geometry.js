@@ -38,6 +38,7 @@ export function addFrame(p1, p2) {									// Crea telai
 		color: COLORS.Clinea.color,
 		transparent: true,
 		opacity: COLORS.Clinea.opacity,
+		depthWrite: false,
 	});
 	const cylinder = new THREE.Mesh(geo, mat);
 	cylinder.userData.defaultColor = mat.color.clone();
@@ -105,6 +106,7 @@ export function addFloor(punti) {									// Crea solai di almeno 3 punti
 		side: THREE.DoubleSide,
 		transparent: true,
 		opacity: COLORS.Csolaio.opacity,
+		depthWrite: false,
 	});
 	const mesh = new THREE.Mesh(geo, mat);
 	mesh.userData.defaultColor = mat.color.clone();

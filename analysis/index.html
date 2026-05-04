@@ -47,9 +47,7 @@
 	</div>
 
 	<!-- VERSIONE E UNITÀ -->
-	<div id="unit">
-		<p>v 1.0.0 <br> [m kN t s deg]</p>
-	</div>
+	<div id="unit"></div>
 
 	<!-- COOKIE BANNER -->
 	<div id="cookie-banner">
@@ -78,11 +76,11 @@
 
 	<!-- RIBBON CON I TAB -->
 	<div id="ribbon">
-		<button class="tab active" data-target="tab-Amodale">Modale</button>
-		<button class="tab"        data-target="tab-Astatica">Statica</button>
+		<button class="tab active"     data-target="tab-Amodale">Modale</button>
+		<button class="tab"            data-target="tab-Astatica">Statica</button>
 		<button class="tab big"        data-target="tab-Aspettrale">Spettrale</button>
 		<button class="tab big"        data-target="tab-Adinamica">Dinamica</button>
-		<button class="tab big"        data-target="tab-Genetica">Genetica</button>
+		<button class="tab big"        data-target="tab-Agenetica">Genetica</button>
 	</div>
 	<div class="panels">
 
@@ -105,7 +103,6 @@
 				</label>
 				<span class="switch-label">Rayleigh</span>
 			</div>
-
 			<div class="box">
 				<div class="inputs">
 					<div id="Dsisma-form" class="inputs">
@@ -122,46 +119,30 @@
 
 		<!-- ANALISI STATICA (placeholder) -->
 		<div class="panel" id="tab-Astatica">
-			<div class="menu-container">
-				<span>Materiale</span>
-				<button class="dropdown-btn">C25/30</button>
-				<div class="dropdown-list" id="dropdownMat">
-					<div>C25/30</div><div>S355</div><div>B450C</div>
-					<div class="new-btn">Nuovo</div>
-				</div>
+			<div class="box menu-container">
 			</div>
-			<div class="menu-container" data-type="sezione">
-				<span>Sezione</span>
-				<button class="dropdown-btn">PIL_30x30</button>
-				<div class="dropdown-list" id="dropdownSez">
-					<div>PIL_30x30</div><div>TRAV_50x30</div>
-					<div class="new-btn">Nuovo</div>
-				</div>
-			</div>
+			<button id="StaticAnalisiBtn" class="analisiBtn">Analisi<br>Statica</button>
 		</div>
 
 		<!-- ANALISI SPETTRALE (placeholder) -->
 		<div class="panel" id="tab-Aspettrale">
-			<div id="mode">
-				<button id="createFloorBtn">Crea Solaio</button>
+			<div class="box menu-container">
 			</div>
+			<button id="SpectralAnalisiBtn" class="analisiBtn">Analisi<br>Spettrale</button>
 		</div>
 
 		<!-- ANALISI DINAMICA (placeholder) -->
 		<div class="panel" id="tab-Adinamica">
-			<div id="load-form">
-				<div class="inputs">
-					<label>Fx: <input type="number" id="Fx-input" value="0"></label>
-					<label>Fy: <input type="number" id="Fy-input" value="0"></label>
-					<label>Fz: <input type="number" id="Fz-input" value="0"></label>
-				</div>
-				<div class="inputs">
-					<label>Mx: <input type="number" id="Mx-input" value="0"></label>
-					<label>My: <input type="number" id="My-input" value="0"></label>
-					<label>Mz: <input type="number" id="Mz-input" value="0"></label>
-				</div>
-				<button id="apply-load-p">Aggiungi carico</button>
+			<div class="box menu-container">
 			</div>
+			<button id="DynamicAnalisiBtn" class="analisiBtn">Analisi<br>Dinamica</button>
+		</div>
+
+		<!-- ANALISI GENETICA (placeholder) -->
+		<div class="panel" id="tab-Agenetica">
+			<div class="box menu-container">
+			</div>
+			<button id="GeneticAnalisiBtn" class="analisiBtn">Analisi<br>Genetica</button>
 		</div>
 
 	</div>
@@ -170,7 +151,7 @@
 	<div id="analisiOutput" style="display:none">
 		<button id="togglePanel" class="toggle-btn" title="Risultati grafici"></button>
 		<div class="box menu-container" id="analisiDropdown" style="display:none">
-			<div id="auto-scale">
+			<div class="switch-div">
 				<label class="switch">
 					<input type="checkbox" id="autoScaleSwitch" checked>
 					<span class="slider"></span>
@@ -180,7 +161,7 @@
 			<div class="inputs">
 				<label>Scala: <input type="number" id="scaleInput" step="0.1" value="1"></label>
 			</div>
-			<div id="color-scale">
+			<div class="switch-div">
 				<label class="switch">
 					<input type="checkbox" id="colorSwitch" checked>
 					<span class="slider"></span>
@@ -263,6 +244,13 @@
 			document.getElementById("analisiGroup").classList.toggle("open");
 			document.getElementById("analisiOutput").classList.remove("open");
 		});
+	</script>
+	<script type="module">
+		import { APP_VERSION, APP_UNITS } from "../js/ui.js";
+
+		document.getElementById("unit").innerHTML = `
+			<p>${APP_VERSION} <br> ${APP_UNITS}</p>
+		`;
 	</script>
 
 </body>

@@ -182,47 +182,46 @@ button:hover {
 
 /* -- SWITCH -- */
 .switch{
-	position: relative;
-	display: inline-block;
-	width: 40px;
-	height: 20px;
+	position:		relative;
+	display:		inline-block;
+	width:			40px;
+	height:			20px;
 }
-.switch input {
-	display: none;
-}
+.switch input { display: none }
 .slider {
-	position: absolute;
-	cursor: pointer;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: #545564;
-	transition: 0.3s;
-	border-radius: 20px;
+	position:		absolute;
+	cursor:			pointer;
+	top:			0;
+	left:			0;
+	right:			0;
+	bottom:			0;
+	background:		var(--bg-3);
+	transition:		0.3s;
+	border-radius:	var(--px-l);
 }
 .slider:before {
-	position: absolute;
-	content: "";
-	height: 16px;
-	width: 16px;
-	left: 2px;
-	bottom: 2px;
-	background-color: white;
-	transition: 0.3s;
-	border-radius: 50%;
+	position:		absolute;
+	content:		"";
+	height:			16px;
+	width:			16px;
+	left:			2px;
+	bottom:			2px;
+	background:		var(--text);
+	transition:		0.3s;
+	border-radius:	50%;
 }
-input:checked + .slider {
-	background-color: #4D95FA;
+input:checked + .slider { background-color: #4D95FA }
+input:checked + .slider:before { transform: translateX(20px) }
+.switch-group {
+	display:		flex;
+	flex-direction:	column;
+	justify-content:space-between;
+	height:			100%;
 }
-input:checked + .slider:before {
-	transform: translateX(20px);
-}
-.switch-label {
-	font-family: monospace;
-	font-size: 15px;
-	font-weight: bold;
-	color: white;
+.switch-div {
+	display:		flex;
+	align-items:	center;
+	gap:			var(--px-s);
 }
 
 /* == GROUP =================================================================================== */
@@ -641,12 +640,6 @@ input:checked + .slider:before {
 	align-items:	stretch;
 	text-align:		center;
 	gap:			var(--px-xs);
-}
-#auto-scale,
-#color-scale {
-	display:		flex;
-	align-items:	center;
-	gap:			var(--px-s);
 }
 
 /* -- Tabella modi -- */

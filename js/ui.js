@@ -5,6 +5,15 @@
 
 import { camera, controls, initCamPos, initTarPos } from "./scene.js";
 
+export const APP_VERSION = "v 1.0.1";
+export const APP_UNITS = "[m kN t s deg]";
+
+/* NOTE VERSIONI
+1.0.1	Bug fix		#dropdownList in Analysis > Corretta posizione
+		Ad.Fnct		Visualizzazione materiali e sezioni con colori
+
+*/
+
 // RESET CAMERA BUTTON -----------------------------------------------------------------------------
 document.getElementById("resetCamBtn").addEventListener("click", () => {
 	camera.position.copy(initCamPos);
