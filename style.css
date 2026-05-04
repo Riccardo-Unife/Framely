@@ -689,7 +689,7 @@ input:checked + .slider:before {
 	left:			200px;
 }
 
-#dropdownList { top: 116px }
+#dropdownList { top: 166px; left: auto; }
 
 #modiTable {
 	width:			160px;
@@ -868,6 +868,7 @@ input:checked + .slider:before {
 		top:			110px;
 		left:			10px;
 	}
+	#dropdownList { top: 116px }
 	.dropdown-list { top: 210px }
 	#fileBar {
 		top:			10px;
